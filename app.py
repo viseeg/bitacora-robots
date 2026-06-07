@@ -85,8 +85,43 @@ try:
     df_rob = data['robots']
     df_reg = data['registro_clean']
 except Exception as e:
-    st.error("Error al procesar el archivo Excel:")
+    st.error("Error al conectar con Google Sheets:")
     st.exception(e)
+    
+    # Panel de depuración para ver qué se está cargando en los Secrets
+    st.markdown("---")
+    st.markdown("### 🔍 Panel de Diagnóstico de Credenciales")
+    st.write("Claves detectadas en `st.secrets`:", list(st.secrets.keys()))
+    if "gcp_service_account" in st.secrets:
+        val = st.secrets["gcp_service_account"]
+        st.write("Tipo de dato de `gcp_service_account`:", type(val).__name__)
+        if isinstance(val, str):
+            st.write("Longitud de la cadena de texto:", len(val))
+            try:
+                import json
+                d = json.loads(val)
+                st.write("✅ El JSON se pudo decodificar correctamente.")
+                st.write("Claves dentro del JSON:", list(d.keys()))
+                if "private_key" in d:
+                    pk = d["private_key"]
+                    st.write(f"Longitud de `private_key` en JSON: {len(pk)} caracteres.")
+                    st.write(f"Saltos de línea reales (\\n): {pk.count('\n')}")
+                    st.write(f"Retornos de carro reales (\\r): {pk.count('\r')}")
+                    st.write(f"Textos '\\n' literales: {pk.count('\\\\n')}")
+            except Exception as json_e:
+                st.error(f"❌ Error al decodificar como JSON: {json_e}")
+                st.text("Contenido recibido (primeros 100 caracteres):")
+                st.code(val[:100])
+        elif hasattr(val, "keys"):
+            st.write("Claves dentro de la tabla TOML:", list(val.keys()))
+            if "private_key" in val:
+                pk = val["private_key"]
+                st.write(f"Longitud de `private_key` en TOML: {len(pk)} caracteres.")
+                st.write(f"Saltos de línea reales (\\n): {pk.count('\n')}")
+                st.write(f"Retornos de carro reales (\\r): {pk.count('\r')}")
+                st.write(f"Textos '\\n' literales: {pk.count('\\\\n')}")
+    else:
+        st.warning("⚠️ No se encontró la clave `gcp_service_account` en `st.secrets`.")
     st.stop()
 
 # Sidebar Setup
