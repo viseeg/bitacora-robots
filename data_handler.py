@@ -26,6 +26,9 @@ def get_gspread_client():
     if "gcp_service_account" in st.secrets:
         # Load from Streamlit Cloud Secrets (dict format)
         creds_dict = dict(st.secrets["gcp_service_account"])
+        # Normalize newlines in the private key to prevent padding / deserialization errors
+        if "private_key" in creds_dict:
+            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     else:
         # Load from local JSON file
