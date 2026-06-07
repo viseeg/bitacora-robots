@@ -33,7 +33,10 @@ def get_gspread_client():
             
         # Normalize newlines in the private key to prevent padding / deserialization errors
         if "private_key" in creds_dict:
-            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+            pk = creds_dict["private_key"]
+            pk = pk.replace("\r", "")  # Remove Windows carriage returns
+            pk = pk.replace("\\n", "\n")
+            creds_dict["private_key"] = pk
             
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     else:
