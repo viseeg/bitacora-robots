@@ -108,6 +108,15 @@ except Exception as e:
                     st.write(f"Saltos de línea reales (\\n): {pk.count('\n')}")
                     st.write(f"Retornos de carro reales (\\r): {pk.count('\r')}")
                     st.write(f"Textos '\\n' literales: {pk.count('\\\\n')}")
+                    
+                    # Mostrar la longitud de cada línea
+                    lines = [line.strip() for line in pk.split("\n")]
+                    line_lengths = []
+                    for idx, line in enumerate(lines):
+                        if line and not line.startswith("-----"):
+                            line_lengths.append(f"Línea {idx}: {len(line)} caracteres")
+                    st.write("Longitud de cada línea de datos base64:")
+                    st.write(line_lengths)
             except Exception as json_e:
                 st.error(f"❌ Error al decodificar como JSON: {json_e}")
                 st.text("Contenido recibido (primeros 100 caracteres):")
