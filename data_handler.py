@@ -24,11 +24,17 @@ def get_gspread_client():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     import streamlit as st
     if "gcp_service_account" in st.secrets:
-        # Load from Streamlit Cloud Secrets (dict format)
-        creds_dict = dict(st.secrets["gcp_service_account"])
+        secrets_val = st.secrets["gcp_service_account"]
+        import json
+        if isinstance(secrets_val, str):
+            creds_dict = json.loads(secrets_val)
+        else:
+            creds_dict = dict(secrets_val)
+            
         # Normalize newlines in the private key to prevent padding / deserialization errors
         if "private_key" in creds_dict:
             creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+            
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     else:
         # Load from local JSON file
